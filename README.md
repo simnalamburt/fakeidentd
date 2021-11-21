@@ -13,6 +13,8 @@ sudo setcap 'cap_net_bind_service=+ep' fakeidentd
 ./fakeidentd
 ```
 
+Use [`build-all`] to create binaries of all supported targets.
+
 ### fakeidentd in action
 ```console
 $ nc -vv 127.0.0.1 113 <<'EOF'
@@ -28,3 +30,4 @@ localhost [127.0.0.1] 113 (ident) open
 ```
 
 [RFC 1413]: https://datatracker.ietf.org/doc/html/rfc1413
+[`build-all`]: build-all

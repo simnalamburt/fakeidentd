@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail; IFS=$'\n\t'
+
+build() {
+  echo "go build -o fakeidentd-${GOOS}-${GOARCH}${GOARM}"
+  sh -c 'go build -o "fakeidentd-${GOOS}-${GOARCH}${GOARM}" && echo "Build finished: fakeidentd-${GOOS}-${GOARCH}${GOARM}"' &
+}
+
+GOOS=linux    GOARCH=386    GOARM=    build
+GOOS=linux    GOARCH=amd64  GOARM=    build
+GOOS=linux    GOARCH=arm64  GOARM=    build
+GOOS=linux    GOARCH=arm    GOARM=5   build
+GOOS=linux    GOARCH=arm    GOARM=6   build
+GOOS=linux    GOARCH=arm    GOARM=7   build
+
+GOOS=windows  GOARCH=386    GOARM=    build
+GOOS=windows  GOARCH=amd64  GOARM=    build
+GOOS=windows  GOARCH=arm64  GOARM=    build
+GOOS=windows  GOARCH=arm    GOARM=5   build
+GOOS=windows  GOARCH=arm    GOARM=6   build
+GOOS=windows  GOARCH=arm    GOARM=7   build
+
+GOOS=darwin   GOARCH=amd64  GOARM=    build
+GOOS=darwin   GOARCH=arm64  GOARM=    build
+
+GOOS=freebsd  GOARCH=386    GOARM=    build
+GOOS=freebsd  GOARCH=amd64  GOARM=    build
+GOOS=freebsd  GOARCH=arm64  GOARM=    build
+GOOS=freebsd  GOARCH=arm    GOARM=5   build
+GOOS=freebsd  GOARCH=arm    GOARM=6   build
+GOOS=freebsd  GOARCH=arm    GOARM=7   build
+
+GOOS=netbsd   GOARCH=386    GOARM=    build
+GOOS=netbsd   GOARCH=amd64  GOARM=    build
+GOOS=netbsd   GOARCH=arm64  GOARM=    build
+GOOS=netbsd   GOARCH=arm    GOARM=5   build
+GOOS=netbsd   GOARCH=arm    GOARM=6   build
+GOOS=netbsd   GOARCH=arm    GOARM=7   build
+
+GOOS=openbsd  GOARCH=386    GOARM=    build
+GOOS=openbsd  GOARCH=amd64  GOARM=    build
+GOOS=openbsd  GOARCH=arm64  GOARM=    build
+GOOS=openbsd  GOARCH=arm    GOARM=5   build
+GOOS=openbsd  GOARCH=arm    GOARM=6   build
+GOOS=openbsd  GOARCH=arm    GOARM=7   build
+
+GOOS=plan9    GOARCH=386    GOARM=    build
+GOOS=plan9    GOARCH=amd64  GOARM=    build
+GOOS=plan9    GOARCH=arm    GOARM=5   build
+GOOS=plan9    GOARCH=arm    GOARM=6   build
+GOOS=plan9    GOARCH=arm    GOARM=7   build
+
+GOOS=solaris  GOARCH=amd64  GOARM=    build
+
+wait
