@@ -1,55 +1,39 @@
-#!/bin/bash
-set -euo pipefail; IFS=$'\n\t'
+#!/usr/bin/env python
+from json import loads
+from os import environ
+from pathlib import Path
+from subprocess import Popen, PIPE
+from typing import Optional, Dict
 
-build() {
-  echo "go build -o fakeidentd-${GOOS}-${GOARCH}${GOARM}"
-  sh -c 'go build -o "fakeidentd-${GOOS}-${GOARCH}${GOARM}" && echo "Build finished: fakeidentd-${GOOS}-${GOARCH}${GOARM}"' &
-}
+def makeenv(os: str, arch: str, arm: Optional[int] = None) -> Dict[str, str]:
+    return {
+        **environ,
+        "GOOS": os,
+        "GOARCH": arch,
+        "GOARM": "" if arm is None else str(arm),
+        #"CGO_ENABLED": "0",
+    }
 
-GOOS=linux    GOARCH=386    GOARM=    build
-GOOS=linux    GOARCH=amd64  GOARM=    build
-GOOS=linux    GOARCH=arm64  GOARM=    build
-GOOS=linux    GOARCH=arm    GOARM=5   build
-GOOS=linux    GOARCH=arm    GOARM=6   build
-GOOS=linux    GOARCH=arm    GOARM=7   build
+NAME = Path(__file__).parent.name
+jobs = []
+for dist in loads(Popen(["go", "tool", "dist", "list", "-json"], stdout=PIPE).stdout.read()):
+    os, arch = dist["GOOS"], dist["GOARCH"]
+    if os in ("android", "ios"):
+        continue
+    ext = '.exe' if os == 'windows' else ''
+    if arch == "arm":
+        jobs += [Popen(["go", "build", "-o", f"{NAME}-{os}-armv{arm}{ext}"], env=makeenv(os, arch, arm)) for arm in range(5, 8)]
+    else:
+        jobs.append(Popen(["go", "build", "-o", f"{NAME}-{os}-{arch}{ext}"], env=makeenv(os, arch)))
 
-GOOS=windows  GOARCH=386    GOARM=    build
-GOOS=windows  GOARCH=amd64  GOARM=    build
-GOOS=windows  GOARCH=arm64  GOARM=    build
-GOOS=windows  GOARCH=arm    GOARM=5   build
-GOOS=windows  GOARCH=arm    GOARM=6   build
-GOOS=windows  GOARCH=arm    GOARM=7   build
+failed = False
+for job in jobs:
+    job.wait()
+    if job.returncode == 0:
+        print(f"{' '.join(job.args)}: finished")
+    else:
+        print(f"{' '.join(job.args)}: failed with exit code {job.returncode}")
+        failed = True
 
-GOOS=darwin   GOARCH=amd64  GOARM=    build
-GOOS=darwin   GOARCH=arm64  GOARM=    build
-
-GOOS=freebsd  GOARCH=386    GOARM=    build
-GOOS=freebsd  GOARCH=amd64  GOARM=    build
-GOOS=freebsd  GOARCH=arm64  GOARM=    build
-GOOS=freebsd  GOARCH=arm    GOARM=5   build
-GOOS=freebsd  GOARCH=arm    GOARM=6   build
-GOOS=freebsd  GOARCH=arm    GOARM=7   build
-
-GOOS=netbsd   GOARCH=386    GOARM=    build
-GOOS=netbsd   GOARCH=amd64  GOARM=    build
-GOOS=netbsd   GOARCH=arm64  GOARM=    build
-GOOS=netbsd   GOARCH=arm    GOARM=5   build
-GOOS=netbsd   GOARCH=arm    GOARM=6   build
-GOOS=netbsd   GOARCH=arm    GOARM=7   build
-
-GOOS=openbsd  GOARCH=386    GOARM=    build
-GOOS=openbsd  GOARCH=amd64  GOARM=    build
-GOOS=openbsd  GOARCH=arm64  GOARM=    build
-GOOS=openbsd  GOARCH=arm    GOARM=5   build
-GOOS=openbsd  GOARCH=arm    GOARM=6   build
-GOOS=openbsd  GOARCH=arm    GOARM=7   build
-
-GOOS=plan9    GOARCH=386    GOARM=    build
-GOOS=plan9    GOARCH=amd64  GOARM=    build
-GOOS=plan9    GOARCH=arm    GOARM=5   build
-GOOS=plan9    GOARCH=arm    GOARM=6   build
-GOOS=plan9    GOARCH=arm    GOARM=7   build
-
-GOOS=solaris  GOARCH=amd64  GOARM=    build
-
-wait
+if failed:
+    exit(1)
