@@ -48,7 +48,7 @@ func handleConnection(conn net.Conn) {
 		match := re.FindStringSubmatch(line)
 		// Drop connection without response on invalid reqeust. This behavior is allowed by RFC 1413.
 		if match == nil {
-			log.Printf("Invalid request: \"%s\"", line)
+			log.Printf("Invalid request: \"%v\"", line)
 			return
 		}
 
@@ -79,6 +79,7 @@ func handleConnection(conn net.Conn) {
 		if _, err := io.WriteString(conn, output); err != nil {
 			log.Print(err)
 		}
+		log.Printf("%v,%v => %v", serverport, clientport, name)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Print(err)
