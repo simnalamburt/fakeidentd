@@ -1,0 +1,13 @@
+# Build results
+/fakeidentd*
+
+# VCS
+/.git/
+/.gitignore
+
+# etcs
+/COPYRIGHT
+/LICENSE-*
+/README.md
+/build-all
+/.dockerignore
