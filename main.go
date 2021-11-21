@@ -69,11 +69,11 @@ func handleConnection(conn net.Conn) {
 		// Response with fake identity
 		//
 		// name = [serverport clientport] XOR [4B 00 DD DB]
-		name := b64.RawURLEncoding.EncodeToString([]byte {
-			byte(serverport >> 8) ^ 0x4B,
-			byte(serverport & 0xff) ^ 0x00,
-			byte(clientport >> 8) ^ 0xDD,
-			byte(clientport & 0xff) ^ 0xDB,
+		name := b64.RawURLEncoding.EncodeToString([]byte{
+			byte(serverport>>8) ^ 0x4B,
+			byte(serverport&0xff) ^ 0x00,
+			byte(clientport>>8) ^ 0xDD,
+			byte(clientport&0xff) ^ 0xDB,
 		})
 		output := fmt.Sprintf("%v, %v : USERID : UNIX : %v\r\n", serverport, clientport, name)
 		if _, err := io.WriteString(conn, output); err != nil {
